@@ -3,6 +3,7 @@ import { View, Text, Button, Image } from '@tarojs/components';
 import './index.scss';
 
 const App: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState<'home' | 'game' | 'end'>('home');
   const [currentLevel, setCurrentLevel] = useState(1);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -10,13 +11,14 @@ const App: React.FC = () => {
   const [matchedCards, setMatchedCards] = useState<number[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const [cards, setCards] = useState<number[]>([]);
+  const [isGameOver, setIsGameOver] = useState(false);
 
   const levelConfig = [
     { level: 1, grid: 2, pairs: 2 },
-    { level: 2, grid: 4, pairs: 8 },
-    { level: 3, grid: 4, pairs: 12 },
-    { level: 4, grid: 8, pairs: 32 },
-    { level: 5, grid: 8, pairs: 48 },
+    { level: 2, grid: 4, pairs: 4 },
+    { level: 3, grid: 4, pairs: 6 },
+    { level: 4, grid: 4, pairs: 8 },
+    { level: 5, grid: 4, pairs: 12 },
   ];
 
   const getCurrentLevelConfig = () => {
@@ -37,6 +39,7 @@ const App: React.FC = () => {
     setScore(0);
     setTimeLeft(60);
     setGameStarted(true);
+    setIsGameOver(false);
   };
 
   const handleCardClick = (index: number) => {
@@ -66,53 +69,103 @@ const App: React.FC = () => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
     } else if (timeLeft === 0 || matchedCards.length === cards.length) {
+      setGameStarted(false);
+      setIsGameOver(true);
       if (matchedCards.length === cards.length) {
-        // Move to the next level if all cards are matched
         if (currentLevel < levelConfig.length) {
           setCurrentLevel(currentLevel + 1);
           initGame();
         } else {
-          // Handle game completion
           alert("Congratulations! You've completed all levels!");
-          setGameStarted(false);
         }
-      } else {
-        setGameStarted(false);
       }
     }
     return () => clearTimeout(timer);
   }, [timeLeft, gameStarted, matchedCards.length, cards.length, currentLevel]);
 
+  const restartGame = () => {
+    initGame();
+    setCurrentPage('game');
+  };
+
+  const renderHome = () => (
+    <View className="home-container">
+      <View className="home-content">
+        <Text className="title">记忆翻牌游戏</Text>
+        <Text className="subtitle">挑战你的记忆力</Text>
+        <Image 
+          src="https://ai-public.mastergo.com/ai/img_res/07192164987a20da043b91c0609b4105.jpg" 
+          className="game-image" 
+        />
+        <View className="button-group">
+          <Button onClick={restartGame} className="start-button">开始游戏</Button>
+          <Button className="record-button">历史记录</Button>
+          <Button className="info-button">游戏说明</Button>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderGame = () => {
+    const config = getCurrentLevelConfig();
+    const gridSize = `grid-cols-${config.grid}`;
+
+    return (
+      <View className="game-container">
+        <View className="info-bar">
+          <View className="info-item">
+            <Text>关卡: {currentLevel}</Text>
+          </View>
+          <View className="info-item">
+            <Text>得分: {score}</Text>
+          </View>
+          <View className="info-item">
+            <Text>时间: {timeLeft}s</Text>
+          </View>
+        </View>
+        <View className={`grid ${gridSize}`}>
+          {cards.map((card, index) => {
+            const isFlipped = flippedCards.includes(index) || matchedCards.includes(index);
+            return (
+              <View 
+                key={index}
+                onClick={() => handleCardClick(index)}
+                className={`card ${isFlipped ? 'flipped' : ''}`}
+              >
+                <View className={`card-back ${isFlipped ? 'hidden' : ''}`}>
+                  <Text>?</Text>
+                </View>
+                <View className={`card-front ${isFlipped ? '' : 'hidden'}`}>
+                  <Text>{card}</Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+        <View className="controls">
+          <Button onClick={() => setCurrentPage('home')}>主页</Button>
+          <Button onClick={restartGame}>重新开始</Button>
+        </View>
+      </View>
+    );
+  };
+
+  const renderEnd = () => (
+    <View className="end-container">
+      <View className="end-content">
+        <Text className="end-title">游戏结束</Text>
+        <Text>最终得分: {score}</Text>
+        <Button onClick={restartGame}>重新开始</Button>
+        <Button onClick={() => setCurrentPage('home')}>返回主页</Button>
+      </View>
+    </View>
+  );
+
   return (
-    <View className="game">
-      <View className="info-bar">
-        <Text>关卡: {currentLevel}</Text>
-        <Text>得分: {score}</Text>
-        <Text className={timeLeft <= 10 ? 'time-red' : 'time-normal'}>时间: {timeLeft}s</Text>
-      </View>
-      <View className={`grid grid-cols-${getCurrentLevelConfig().grid}`}>
-        {cards.map((card, index) => {
-          const isFlipped = flippedCards.includes(index) || matchedCards.includes(index);
-          return (
-            <View 
-              key={index}
-              onClick={() => handleCardClick(index)}
-              className={`card ${isFlipped ? 'flipped' : ''}`}
-            >
-              <View className={`card-back ${isFlipped ? 'hidden' : ''}`}>
-                <Text>?</Text>
-              </View>
-              <View className={`card-front ${isFlipped ? '' : 'hidden'}`}>
-                <Text>{card}</Text>
-              </View>
-            </View>
-          );
-        })}
-      </View>
-      <View className="controls">
-        <Button onClick={() => { /* Return to home */ }}>主页</Button>
-        <Button onClick={initGame}>重新开始</Button>
-      </View>
+    <View className="app">
+      {currentPage === 'home' && renderHome()}
+      {currentPage === 'game' && renderGame()}
+      {currentPage === 'end' && renderEnd()}
     </View>
   );
 };

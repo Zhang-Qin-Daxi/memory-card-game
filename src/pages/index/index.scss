@@ -1,4 +1,4 @@
-// app.scss
+// App.scss
 
 $app-bg: linear-gradient(to bottom, #ebf8ff, #c3dafe);
 $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
@@ -7,18 +7,17 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
   min-height: 100vh;
   background: $app-bg;
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
 }
 
-.home, .game, .end {
+.home-container, .game-container, .end-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
   background: white;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 90%;
-  max-width: 400px;
   text-align: center;
 }
 
@@ -38,19 +37,19 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
   border-radius: 15px;
 }
 
+.button-group {
+  margin-top: 20px;
+}
+
+.start-button, .record-button, .info-button {
+  width: 100%;
+  margin: 5px 0;
+}
+
 .info-bar {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.time-red {
-  color: red;
-}
-
-.time-normal {
-  color: #4f46e5;
 }
 
 .grid {
@@ -60,10 +59,6 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
 
   &.grid-cols-2 {
     grid-template-columns: repeat(2, 1fr);
-  }
-  
-  &.grid-cols-3 {
-    grid-template-columns: repeat(3, 1fr);
   }
   
   &.grid-cols-4 {
@@ -118,6 +113,7 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
 .controls {
   display: flex;
   justify-content: space-between;
+  margin-top: 20px;
 
   button {
     flex: 1;
@@ -125,10 +121,9 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
     padding: 10px;
     border-radius: 10px;
     font-weight: bold;
-    transition: background-color 0.3s;
-
-    &:hover {
-      background-color: #e5e7eb;  // Light gray
-    }
   }
+}
+
+.end-content {
+  margin-top: 20px;
 }
