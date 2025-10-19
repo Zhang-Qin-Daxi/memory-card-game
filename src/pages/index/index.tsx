@@ -3,7 +3,7 @@ import { View, Text, Button, Image } from '@tarojs/components';
 import './index.scss';
 
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'game' | 'end'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'game' | 'end'>('end');
   const [currentLevel, setCurrentLevel] = useState(1);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -80,6 +80,18 @@ const App: React.FC = () => {
         }
       }
     }
+    // 游戏结束,显示游戏结束页面
+    if (isGameOver) {
+      setCurrentPage('end');
+      setGameStarted(false);
+      setIsGameOver(false);
+      setCurrentLevel(1);
+      setScore(0);
+      setTimeLeft(60);
+      setFlippedCards([]);
+      setMatchedCards([]);
+      setCards([]);
+    }
     return () => clearTimeout(timer);
   }, [timeLeft, gameStarted, matchedCards.length, cards.length, currentLevel]);
 
@@ -91,11 +103,11 @@ const App: React.FC = () => {
   const renderHome = () => (
     <View className="home-container">
       <View className="home-content">
-        <Text className="title">记忆翻牌游戏</Text>
-        <Text className="subtitle">挑战你的记忆力</Text>
-        <Image 
-          src="https://ai-public.mastergo.com/ai/img_res/07192164987a20da043b91c0609b4105.jpg" 
-          className="game-image" 
+        <View className="title">记忆翻牌游戏</View>
+        <View className="subtitle">挑战你的记忆力</View>
+        <Image
+          src="https://ai-public.mastergo.com/ai/img_res/07192164987a20da043b91c0609b4105.jpg"
+          className="game-image"
         />
         <View className="button-group">
           <Button onClick={restartGame} className="start-button">开始游戏</Button>
@@ -114,20 +126,25 @@ const App: React.FC = () => {
       <View className="game-container">
         <View className="info-bar">
           <View className="info-item">
-            <Text>关卡: {currentLevel}</Text>
+            <Text className="info-item-label">关卡</Text>
+            <Text className="info-item-value">{currentLevel}</Text>
           </View>
           <View className="info-item">
-            <Text>得分: {score}</Text>
+            <Text className="info-item-label">得分</Text>
+            <Text className="info-item-value">{score}</Text>
           </View>
           <View className="info-item">
-            <Text>时间: {timeLeft}s</Text>
+            <Text className="info-item-label">时间</Text>
+            <Text className={`${timeLeft <= 10 ? 'time-left-red' : 'info-item-value'}`}>
+              {timeLeft}s
+            </Text>
           </View>
         </View>
         <View className={`grid ${gridSize}`}>
           {cards.map((card, index) => {
             const isFlipped = flippedCards.includes(index) || matchedCards.includes(index);
             return (
-              <View 
+              <View
                 key={index}
                 onClick={() => handleCardClick(index)}
                 className={`card ${isFlipped ? 'flipped' : ''}`}
@@ -143,8 +160,8 @@ const App: React.FC = () => {
           })}
         </View>
         <View className="controls">
-          <Button onClick={() => setCurrentPage('home')}>主页</Button>
-          <Button onClick={restartGame}>重新开始</Button>
+          <Button onClick={() => setCurrentPage('home')} className="return-home-button">主页</Button>
+          <Button onClick={restartGame} className="restart-game-button">重新开始</Button>
         </View>
       </View>
     );
@@ -152,11 +169,20 @@ const App: React.FC = () => {
 
   const renderEnd = () => (
     <View className="end-container">
-      <View className="end-content">
-        <Text className="end-title">游戏结束</Text>
-        <Text>最终得分: {score}</Text>
-        <Button onClick={restartGame}>重新开始</Button>
-        <Button onClick={() => setCurrentPage('home')}>返回主页</Button>
+      <View className="end-title">
+        <View className="end-title-icon">
+          <Image src="https://ai-public.mastergo.com/ai/img_res/07192164987a20da043b91c0609b4105.jpg" className="end-title-icon-image" />
+        </View>
+        <View className="end-title-text">游戏结束</View>
+      </View>
+      <View className="end-score">
+        <View className="end-score-label">最终得分</View>
+        <View className="end-score-value">{score}</View>
+        <View className="end-score-time">完成时间: {60 - timeLeft} 秒</View>
+      </View>
+      <View className="end-buttons">
+        <Button onClick={restartGame} className="end-restart-game-button">重新开始</Button>
+        <Button onClick={() => setCurrentPage('home')} className='end-return-home-button'>返回主页</Button>
       </View>
     </View>
   );
