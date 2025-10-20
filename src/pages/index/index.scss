@@ -1,15 +1,14 @@
-// App.scss
-
 $app-bg: linear-gradient(to bottom, #ebf8ff, #c3dafe);
 $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
 
 .app {
-	min-height: 100vh;
+	height: 100vh;
 	background: $app-bg;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	box-sizing: border-box;
 }
 
 .home-container {
@@ -23,7 +22,7 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
 
 .game-container {
 	width: 80%;
-	min-height: 100vh;
+	height: 100vh;
 	background: linear-gradient(to bottom, #ebf8ff, #c3dafe);
 	padding: 20px;
 }
@@ -88,7 +87,7 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
 	border-radius: 20px;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 	padding: 20px;
-	margin-bottom: 20px;
+	margin: 20px 0px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -103,19 +102,14 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
 
 .info-item-label {
 	color: #6b7280;
-	// font-size: 14px;
 }
 
 .info-item-value {
 	color: #4f46e5;
-	// font-size: 18px;
-	// font-weight: 600;
 }
 
 .time-left-red {
 	color: #ef4444;
-	// font-size: 18px;
-	// font-weight: 600;
 }
 
 .grid {
@@ -125,10 +119,14 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
 
 	&.grid-cols-2 {
 		grid-template-columns: repeat(2, 1fr);
+		max-width: 420px; // 限制两列时的整体宽度，避免卡片过大
+		margin: 50px auto; // 居中
 	}
 
 	&.grid-cols-4 {
 		grid-template-columns: repeat(4, 1fr);
+		max-width: 720px; // 限制四列时的整体宽度
+		margin: 50px auto; // 居中
 	}
 }
 
