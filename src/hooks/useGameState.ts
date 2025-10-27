@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GameState, GameActions } from '../types/game';
 import { levelConfig, generateCards } from '../config/gameConfig';
+import Taro from '@tarojs/taro';
 
 export const useGameState = (): GameState & GameActions => {
   const [currentPage, setCurrentPage] = useState<'home' | 'game' | 'end'>('home');
@@ -85,20 +86,31 @@ export const useGameState = (): GameState & GameActions => {
           }, PREVIEW_DURATION_MS);
         } else {
           alert("Congratulations! You've completed all levels!");
+          const scoreList = Taro.getStorageSync('score')?.split(',') || []; // 获取历史记录
+          if (scoreList.length > 10) {
+            scoreList.shift(); // 如果历史记录超过10条，则删除最早的一条
+          }
+          if (score > 0) {
+            scoreList.unshift(score.toString()); // 将当前得分添加到历史记录中
+          }
+          Taro.setStorageSync('score', scoreList.join(',')); // 将历史记录存储到本地
+          initGame(); // 重新开始游戏 并设置当前页面为结束页面
+          setCurrentPage('end');
         }
       }
     }
     // 游戏结束,显示游戏结束页面
     if (isGameOver) {
-      // setCurrentPage('end');
-      // setGameStarted(false);
-      // setIsGameOver(false);
-      // setCurrentLevel(1);
-      // setScore(0);
-      // setTimeLeft(60);
-      // setFlippedCards([]);
-      // setMatchedCards([]);
-      // setCards([]);
+      const scoreList = Taro.getStorageSync('score')?.split(',') || []; // 获取历史记录
+      if (scoreList.length > 10) {
+        scoreList.shift(); // 如果历史记录超过10条，则删除最早的一条
+      }
+      if (score > 0) {
+        scoreList.unshift(score.toString()); // 将当前得分添加到历史记录中
+      }
+      Taro.setStorageSync('score', scoreList.join(',')); // 将历史记录存储到本地
+      initGame(); // 重新开始游戏 并设置当前页面为结束页面
+      setCurrentPage('end');
     }
     return () => clearTimeout(timer);
   }, [timeLeft, gameStarted, matchedCards.length, cards.length, currentLevel]);

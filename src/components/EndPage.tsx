@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, Button, Image } from '@tarojs/components';
+import React, { useEffect, useState } from 'react';
+import { View, Button, Image } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 
 interface EndPageProps {
   score: number;
@@ -9,11 +10,23 @@ interface EndPageProps {
 }
 
 const EndPage: React.FC<EndPageProps> = ({
-  score,
   timeLeft,
   onRestartGame,
   onReturnHome,
 }) => {
+  const [firstScore, setFirstScore] = useState<number>(0);
+
+  useEffect(() => {
+    const scoreList = Taro.getStorageSync('score')?.split(',') || []; // 获取历史记录
+    // 获取第一条历史记录
+    const firstScore = scoreList[0];
+    if (firstScore) {
+      setFirstScore(Number(firstScore));
+    } else {
+      setFirstScore(0);
+    }
+  }, []);
+  
   return (
     <View className="end-container">
       <View className="end-title">
@@ -27,8 +40,8 @@ const EndPage: React.FC<EndPageProps> = ({
       </View>
       <View className="end-score">
         <View className="end-score-label">最终得分</View>
-        <View className="end-score-value">{score}</View>
-        <View className="end-score-time">完成时间: {60 - timeLeft} 秒</View>
+        <View className="end-score-value">{firstScore}</View>
+        {/* <View className="end-score-time">完成时间: {60 - timeLeft} 秒</View> */}
       </View>
       <View className="end-buttons">
         <Button onClick={onRestartGame} className="end-restart-game-button">重新开始</Button>
