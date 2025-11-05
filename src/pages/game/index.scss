@@ -1,0 +1,148 @@
+$card-bg: linear-gradient(to right, #4f46e5, #a855f7);
+
+.game-container {
+	width: 100%;
+	// height: 100vh;
+	// background: linear-gradient(to bottom, #ebf8ff, #c3dafe);
+	padding: 20px;
+	margin: 0 auto;
+	box-sizing: border-box;
+}
+
+.info-bar {
+	background: white;
+	border-radius: 20px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+	margin: 20px 0px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.info-item {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+.info-item-label {
+	color: #6b7280;
+}
+
+.info-item-value {
+	color: #4f46e5;
+}
+
+.time-left-red {
+	color: #ef4444;
+}
+
+.grid {
+	display: grid;
+	gap: 10px;
+	margin: 50px 0px;
+
+	&.grid-cols-2 {
+		grid-template-columns: repeat(2, 1fr);
+		max-width: 420px; // 限制两列时的整体宽度，避免卡片过大
+		margin: 50px auto; // 居中
+	}
+
+	&.grid-cols-4 {
+		grid-template-columns: repeat(4, 1fr);
+		max-width: 720px; // 限制四列时的整体宽度
+		margin: 50px auto; // 居中
+	}
+}
+
+.card {
+	position: relative;
+	aspect-ratio: 1;
+	cursor: pointer;
+	border-radius: 15px;
+	overflow: hidden;
+	transition: transform 0.3s;
+
+	&.flipped {
+		transform: rotateY(180deg);
+	}
+
+	.card-back,
+	.card-front {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		border-radius: 15px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 24px;
+		font-weight: bold;
+		color: white;
+		transition: opacity 0.3s;
+	}
+
+	.card-back {
+		background: $card-bg;
+
+		&.hidden {
+			opacity: 0;
+		}
+	}
+
+	.card-front {
+		background: white;
+		color: #4f46e5;
+
+		&.hidden {
+			opacity: 0;
+		}
+	}
+}
+
+.controls {
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+
+	.return-home-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 10px;
+		background-color: #fff;
+		border: 2px solid #4f46e5;
+		color: #4f46e5;
+		// font-size: 16px;
+		// font-weight: 600;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		transition: all 0.3s ease;
+
+		hover: {
+			background-color: #4f46e5;
+			color: #fff;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+		}
+	}
+
+	.restart-game-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 10px;
+		background-color: #4f46e5;
+		color: #fff;
+		// font-size: 16px;
+		// font-weight: 600;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		transition: all 0.3s ease;
+
+		hover: {
+			background-color: #4f46e5;
+			color: #fff;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+		}
+	}
+}

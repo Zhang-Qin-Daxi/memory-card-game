@@ -1,42 +1,28 @@
-import React from 'react';
-import { View } from '@tarojs/components';
-import { useGameState } from '../../hooks/useGameState';
-import HomePage from '../../components/HomePage';
-import GamePage from '../../components/GamePage';
-import EndPage from '../../components/EndPage';
+import Taro from '@tarojs/taro';
+import { View, Button, Image } from '@tarojs/components';
+import { SafeAreaView } from '@/components/SafeAreaView';
 import './index.scss';
 
-const App: React.FC = () => {
-  const gameState = useGameState();
-
+const HomePage = () => {
   return (
-    <View className="app">
-      {gameState.currentPage === 'home' && (
-        <HomePage onStartGame={gameState.restartGame} />
-      )}
-      {gameState.currentPage === 'game' && (
-        <GamePage
-          currentLevel={gameState.currentLevel}
-          score={gameState.score}
-          timeLeft={gameState.timeLeft}
-          cards={gameState.cards}
-          flippedCards={gameState.flippedCards}
-          matchedCards={gameState.matchedCards}
-          onCardClick={gameState.handleCardClick}
-          onReturnHome={() => gameState.setCurrentPage('home')}
-          onRestartGame={gameState.restartGame}
-        />
-      )}
-      {gameState.currentPage === 'end' && (
-        <EndPage
-          score={gameState.score}
-          timeLeft={gameState.timeLeft}
-          onRestartGame={gameState.restartGame}
-          onReturnHome={() => gameState.setCurrentPage('home')}
-        />
-      )}
-    </View>
+    <SafeAreaView>
+      <View className="home-container">
+        <View className="home-content">
+          <View className="title">记忆翻牌游戏</View>
+          <View className="subtitle">挑战你的记忆力</View>
+          <Image
+            src="https://ai-public.mastergo.com/ai/img_res/07192164987a20da043b91c0609b4105.jpg"
+            className="game-image"
+          />
+          <View className="button-group">
+            <Button onClick={() => Taro.navigateTo({ url: '/pages/game/index' })} className="start-button">开始游戏</Button>
+            <Button onClick={() => Taro.navigateTo({ url: '/pages/history/index' })} className="record-button">历史记录</Button>
+            <Button onClick={() => Taro.navigateTo({ url: '/pages/description/index' })} className="info-button">游戏说明</Button>
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
-export default App;
+export default HomePage;
