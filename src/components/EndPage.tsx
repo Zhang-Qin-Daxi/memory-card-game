@@ -17,11 +17,11 @@ const EndPage: React.FC<EndPageProps> = ({
   const [firstScore, setFirstScore] = useState<number>(0);
 
   useEffect(() => {
-    const scoreList = Taro.getStorageSync('score')?.split(',') || []; // 获取历史记录
+    const scoreDataList = JSON.parse(Taro.getStorageSync('score')) || []; // 获取历史记录
     // 获取第一条历史记录
-    const firstScore = scoreList[0];
-    if (firstScore) {
-      setFirstScore(Number(firstScore));
+    const firstScoreData = scoreDataList[0];
+    if (firstScoreData) {
+      setFirstScore(firstScoreData?.score || 0);
     } else {
       setFirstScore(0);
     }

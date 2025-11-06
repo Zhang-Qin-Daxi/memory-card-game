@@ -8,7 +8,7 @@ import './index.scss';
 const GamePage = () => {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(20);
   const [cards, setCards] = useState<number[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedCards, setMatchedCards] = useState<number[]>([]);
@@ -56,7 +56,7 @@ const GamePage = () => {
     setFlippedCards(newCards.map((_, index) => index));
     setMatchedCards([]);
     setScore(0);
-    setTimeLeft(60);
+    setTimeLeft(20);
     setGameStarted(false);
     setIsGameOver(false);
     // 若干秒后自动盖回并开始计时
@@ -65,6 +65,10 @@ const GamePage = () => {
       setGameStarted(true);
     }, PREVIEW_DURATION_MS);
   };
+
+  useEffect(() => {
+    initGame();
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -84,7 +88,7 @@ const GamePage = () => {
           // 下一关开始时预览所有卡片
           setFlippedCards(nextCards.map((_, index) => index));
           setMatchedCards([]);
-          setTimeLeft(60);
+          setTimeLeft(20);
           setGameStarted(false);
           setIsGameOver(false);
           setTimeout(() => {
@@ -92,20 +96,29 @@ const GamePage = () => {
             setGameStarted(true);
           }, PREVIEW_DURATION_MS);
         } else {
-          alert("Congratulations! You've completed all levels!");
+          // alert("Congratulations! You've completed all levels!");
+          Taro.showToast({
+            title: 'Congratulations! You\'ve completed all levels!',
+            icon: 'success',
+          });
           setIsGameOver(true);
-          Taro.navigateTo({ url: '/pages/end/index' });
+          // Taro.navigateTo({ url: '/pages/end/index' });
         }
       }
     }
     // 游戏结束,显示游戏结束页面
-    if (isGameOver) {
-      const scoreList = Taro.getStorageSync('score')?.split(',') || []; // 获取历史记录
-      if (scoreList.length > 10) {
-        scoreList.shift(); // 如果历史记录超过10条，则删除最早的一条
-      }
-      Taro.setStorageSync('score', scoreList.join(',')); // 将历史记录存储到本地
-      initGame(); // 重新开始游戏 并设置当前页面为结束页面
+    if (isGameOver || timeLeft === 0) {
+      let scoreList = Taro.getStorageSync('score') || []; // 获取历史记录
+      // if (scoreList.length > 10) {
+      //   scoreList.pop(); // 如果历史记录超过10条，则删除最后一条
+      // }
+      // 存储历史记录 时间 得分
+      const scoreData = {
+        time: new Date().toISOString().split('T')[0] + ' ' + new Date().toTimeString().split(' ')[0], // 年月日 时分秒 如 2025-11-06 10:00:00
+        score: score,
+      };
+      scoreList.unshift(scoreData); // 将当前得分添加到历史记录中
+      Taro.setStorageSync('score', scoreList);
       Taro.navigateTo({ url: '/pages/end/index' });
     }
     return () => clearTimeout(timer);

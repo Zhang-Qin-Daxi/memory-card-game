@@ -5,16 +5,16 @@ import { SafeAreaView } from '@/components/SafeAreaView';
 import './index.scss';
 
 const EndPage = () => {
-  const [firstScore, setFirstScore] = useState<number>(0);
+  const [firstScore, setFirstScore] = useState<{time: string, score: number} | null>(null);
 
   useEffect(() => {
-    const scoreList = Taro.getStorageSync('score')?.split(',') || []; // 获取历史记录
+    const scoreList = Taro.getStorageSync('score') || []; // 获取历史记录
     // 获取第一条历史记录
-    const firstScore = scoreList[0];
-    if (firstScore) {
-      setFirstScore(Number(firstScore));
+    const firstScoreData = scoreList[0];
+    if (firstScoreData) {
+      setFirstScore(firstScoreData);
     } else {
-      setFirstScore(0);
+      setFirstScore(null);
     }
   }, []);
 
@@ -32,8 +32,8 @@ const EndPage = () => {
         </View>
         <View className="end-score">
           <View className="end-score-label">最终得分</View>
-          <View className="end-score-value">{firstScore}</View>
-          {/* <View className="end-score-time">完成时间: {60 - timeLeft} 秒</View> */}
+          <View className="end-score-value">{firstScore?.score || 0}</View>
+          <View className="end-score-time">{firstScore?.time || '--'}</View>
         </View>
         <View className="end-buttons">
           <Button onClick={() => Taro.navigateTo({ url: '/pages/game/index' })} className="end-restart-game-button">重新开始</Button>
