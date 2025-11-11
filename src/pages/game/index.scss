@@ -99,6 +99,13 @@ $card-bg: linear-gradient(to right, #4f46e5, #a855f7);
 		&.hidden {
 			opacity: 0;
 		}
+
+		.card-image {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			border-radius: 15px;
+		}
 	}
 }
 

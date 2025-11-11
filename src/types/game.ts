@@ -4,6 +4,12 @@ export interface LevelConfig {
   pairs: number;
 }
 
+export interface Card {
+  id: number;
+  imageUrl: string;
+  pairId: number; // 用于匹配的ID
+}
+
 export interface GameState {
   currentPage: 'home' | 'game' | 'end';
   currentLevel: number;
@@ -12,7 +18,7 @@ export interface GameState {
   flippedCards: number[];
   matchedCards: number[];
   gameStarted: boolean;
-  cards: number[];
+  cards: Card[];
   isGameOver: boolean;
 }
 
@@ -24,7 +30,7 @@ export interface GameActions {
   setFlippedCards: (cards: number[]) => void;
   setMatchedCards: (cards: number[]) => void;
   setGameStarted: (started: boolean) => void;
-  setCards: (cards: number[]) => void;
+  setCards: (cards: Card[]) => void;
   setIsGameOver: (over: boolean) => void;
   initGame: () => void;
   handleCardClick: (index: number) => void;

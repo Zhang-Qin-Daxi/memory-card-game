@@ -1,15 +1,17 @@
 import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
-import { View, Text, Button } from '@tarojs/components';
+import { View, Text, Button, Image } from '@tarojs/components';
 import { generateCards, getCurrentLevelConfig, levelConfig } from '@/config/gameConfig';
 import { SafeAreaView } from '@/components/SafeAreaView';
+import { GetImgsService } from '@/api/getImgs';
+import { Card } from '@/types/game';
 import './index.scss';
 
 const GamePage = () => {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(20);
-  const [cards, setCards] = useState<number[]>([]);
+  const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedCards, setMatchedCards] = useState<number[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
@@ -27,7 +29,8 @@ const GamePage = () => {
 
     if (newFlippedCards.length === 2) {
       const [firstIndex, secondIndex] = newFlippedCards;
-      if (cards[firstIndex] === cards[secondIndex]) {
+      // 使用 pairId 来判断是否匹配
+      if (cards[firstIndex].pairId === cards[secondIndex].pairId) {
         setMatchedCards([...matchedCards, firstIndex, secondIndex]);
         setScore(score + 10);
         setFlippedCards([]);
@@ -47,27 +50,47 @@ const GamePage = () => {
     Taro.navigateTo({ url: '/pages/game/index' });
   };
 
-  const initGame = () => {
-    const level = 1;
-    const newCards = generateCards(level);
-    setCurrentLevel(level);
-    setCards(newCards);
-    // 预览：先全部翻开
-    setFlippedCards(newCards.map((_, index) => index));
-    setMatchedCards([]);
-    setScore(0);
-    setTimeLeft(20);
-    setGameStarted(false);
-    setIsGameOver(false);
-    // 若干秒后自动盖回并开始计时
-    setTimeout(() => {
-      setFlippedCards([]);
-      setGameStarted(true);
-    }, PREVIEW_DURATION_MS);
+  const initGame = async (level: number) => {
+    try {
+      const config = getCurrentLevelConfig(level);
+      // 根据关卡配置的 pairs 数量获取图片
+      const images = await GetImgsService.getImgs(config.pairs);
+      
+      // if (images.length < config.pairs) {
+      //   Taro.showToast({
+      //     title: '图片数量不足',
+      //     icon: 'error',
+      //   });
+      //   return;
+      // }
+      
+      // 使用获取的图片生成卡片
+      const newCards = generateCards(images);
+      setCurrentLevel(level);
+      setCards(newCards);
+      // 预览：先全部翻开
+      setFlippedCards(newCards.map((_, index) => index));
+      setMatchedCards([]);
+      setScore(0);
+      setTimeLeft(20);
+      setGameStarted(false);
+      setIsGameOver(false);
+      // 若干秒后自动盖回并开始计时
+      setTimeout(() => {
+        setFlippedCards([]);
+        setGameStarted(true);
+      }, PREVIEW_DURATION_MS);
+    } catch (error) {
+      console.error('初始化游戏失败:', error);
+      Taro.showToast({
+        title: '加载失败，请重试',
+        icon: 'error',
+      });
+    }
   };
 
   useEffect(() => {
-    initGame();
+    initGame(1); // 初始化第1关
   }, []);
 
   useEffect(() => {
@@ -82,19 +105,8 @@ const GamePage = () => {
       if (matchedCards.length === cards.length) {
         if (currentLevel < levelConfig.length) {
           const nextLevel = currentLevel + 1;
-          const nextCards = generateCards(nextLevel);
-          setCurrentLevel(nextLevel);
-          setCards(nextCards);
-          // 下一关开始时预览所有卡片
-          setFlippedCards(nextCards.map((_, index) => index));
-          setMatchedCards([]);
-          setTimeLeft(20);
-          setGameStarted(false);
-          setIsGameOver(false);
-          setTimeout(() => {
-            setFlippedCards([]);
-            setGameStarted(true);
-          }, PREVIEW_DURATION_MS);
+          // 进入下一关，加载新的图片
+          initGame(nextLevel);
         } else {
           // alert("Congratulations! You've completed all levels!");
           Taro.showToast({
@@ -108,7 +120,14 @@ const GamePage = () => {
     }
     // 游戏结束,显示游戏结束页面
     if (isGameOver || timeLeft === 0) {
-      let scoreList = Taro.getStorageSync('score') || []; // 获取历史记录
+      let scoreList: any[] = [];
+      try {
+        const stored = Taro.getStorageSync('score');
+        // 确保 scoreList 是数组
+        scoreList = Array.isArray(stored) ? stored : [];
+      } catch {
+        scoreList = [];
+      }
       // if (scoreList.length > 10) {
       //   scoreList.pop(); // 如果历史记录超过10条，则删除最后一条
       // }
@@ -146,9 +165,10 @@ const GamePage = () => {
         <View className={`grid ${gridSize}`}>
           {cards.map((card, index) => {
             const isFlipped = flippedCards.includes(index) || matchedCards.includes(index);
+            console.log('cardcard', card);
             return (
               <View
-                key={index}
+                key={card.id}
                 onClick={() => onCardClick(index)}
                 className={`card ${isFlipped ? 'flipped' : ''}`}
               >
@@ -156,7 +176,11 @@ const GamePage = () => {
                   <Text>?</Text>
                 </View>
                 <View className={`card-front ${isFlipped ? '' : 'hidden'}`}>
-                  <Text>{card}</Text>
+                  <Image 
+                    src={card.imageUrl} 
+                    mode="aspectFill"
+                    className="card-image"
+                  />
                 </View>
               </View>
             );
