@@ -23,10 +23,10 @@ const EndPage = () => {
       <View className="end-container">
         <View className="end-title">
           <View className="end-title-icon">
-            <Image
+            {/* <Image
               src="https://ai-public.mastergo.com/ai/img_res/07192164987a20da043b91c0609b4105.jpg"
               className="end-title-icon-image"
-            />
+            /> */}
           </View>
           <View className="end-title-text">游戏结束</View>
         </View>

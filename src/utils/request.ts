@@ -35,7 +35,7 @@ export class RequestError extends Error {
 
 // 创建请求URL
 const createURL = (endpoint: string): string => {
-  const baseURL = 'http://192.168.0.100:3000/api';
+  const baseURL = 'http://172.20.10.7:1234/api';
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   return `${baseURL}${cleanEndpoint}`;
 };

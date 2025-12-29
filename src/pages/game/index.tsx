@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
 import { View, Text, Button, Image } from '@tarojs/components';
-import { generateCards, getCurrentLevelConfig, levelConfig } from '@/config/gameConfig';
+import { generateCards, getCurrentLevelConfig } from '@/config/gameConfig';
 import { SafeAreaView } from '@/components/SafeAreaView';
 import { GetImgsService } from '@/api/getImgs';
 import { Card } from '@/types/game';
@@ -55,15 +55,8 @@ const GamePage = () => {
       const config = getCurrentLevelConfig(level);
       // 根据关卡配置的 pairs 数量获取图片
       const images = await GetImgsService.getImgs(config.pairs);
-      
-      // if (images.length < config.pairs) {
-      //   Taro.showToast({
-      //     title: '图片数量不足',
-      //     icon: 'error',
-      //   });
-      //   return;
-      // }
-      
+      // 打乱图片顺序
+      images.sort(() => Math.random() - 0.5);
       // 使用获取的图片生成卡片
       const newCards = generateCards(images);
       setCurrentLevel(level);
@@ -103,7 +96,7 @@ const GamePage = () => {
       // setGameStarted(false);
       // setIsGameOver(true);
       if (matchedCards.length === cards.length) {
-        if (currentLevel < levelConfig.length) {
+        if (currentLevel < 10) {
           const nextLevel = currentLevel + 1;
           // 进入下一关，加载新的图片
           initGame(nextLevel);
@@ -165,7 +158,6 @@ const GamePage = () => {
         <View className={`grid ${gridSize}`}>
           {cards.map((card, index) => {
             const isFlipped = flippedCards.includes(index) || matchedCards.includes(index);
-            console.log('cardcard', card);
             return (
               <View
                 key={card.id}
@@ -173,7 +165,7 @@ const GamePage = () => {
                 className={`card ${isFlipped ? 'flipped' : ''}`}
               >
                 <View className={`card-back ${isFlipped ? 'hidden' : ''}`}>
-                  <Text>?</Text>
+                  {/* <Text>?</Text> */}
                 </View>
                 <View className={`card-front ${isFlipped ? '' : 'hidden'}`}>
                   <Image 

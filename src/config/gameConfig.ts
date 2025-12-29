@@ -1,16 +1,13 @@
 import { LevelConfig, Card } from '../types/game';
 import { ImageData } from '../api/getImgs';
 
-export const levelConfig: LevelConfig[] = [
-  { level: 1, grid: 2, pairs: 2 },
-  { level: 2, grid: 4, pairs: 4 },
-  // { level: 3, grid: 4, pairs: 6 },
-  // { level: 4, grid: 4, pairs: 8 },
-  // { level: 5, grid: 4, pairs: 12 },
-];
-
 export const getCurrentLevelConfig = (currentLevel: number): LevelConfig => {
-  return levelConfig.find(config => config.level === currentLevel) || levelConfig[0];
+  // 第一关15对，后续每一关增加4对
+  if (currentLevel === 1) {
+    return { level: 1, grid: 4, pairs: 6 };
+  } else {
+    return { level: currentLevel, grid: 4, pairs: 6 + (currentLevel - 1) * 4 };
+  } 
 };
 
 // 使用图片数据生成卡片
