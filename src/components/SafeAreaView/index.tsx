@@ -5,11 +5,14 @@ import Taro from '@tarojs/taro';
 export const SafeAreaView = ({ children }: { children: React.ReactNode }) => {
   const [safeArea, setSafeArea] = useState<{ top: number, bottom: number }>({ top: 0, bottom: 0 });
 
-  useEffect(() => {
-    const systemInfo = Taro.getSystemInfoSync();
-    const safeArea = systemInfo.safeArea || { top: 0, bottom: 0 };
-    setSafeArea({ top: safeArea.top, bottom: safeArea.bottom });
-  }, []); 
+ useEffect(() => {
+  const systemInfo = Taro.getSystemInfoSync();
+  const safeArea = systemInfo.safeArea || { top: 0, bottom: systemInfo.screenHeight || 0 };
+  const insetTop = safeArea.top || 0;
+  const insetBottom = (systemInfo.screenHeight || 0) - (safeArea.bottom || 0);
+
+  setSafeArea({ top: insetTop, bottom: Math.max(insetBottom, 0) });
+}, []);
 
   return <View style={{ paddingTop: safeArea.top + 'px', paddingBottom: safeArea.bottom + 'px' }}>{children}</View>
 }
