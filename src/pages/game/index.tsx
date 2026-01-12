@@ -6,6 +6,7 @@ import { SafeAreaView } from '@/components/SafeAreaView';
 import { GetImgsService } from '@/api/getImgs';
 import { Card } from '@/types/game';
 import './index.scss';
+import { NavBar } from '@/components/NavBar';
 
 const GamePage = () => {
   const [currentLevel, setCurrentLevel] = useState(0);
@@ -138,6 +139,7 @@ const GamePage = () => {
 
   return (
     <SafeAreaView>
+      <NavBar title="记忆翻牌游戏" showBack />
       <View className="game-container">
         <View className="info-bar">
           <View className="info-item">

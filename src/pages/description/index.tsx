@@ -1,6 +1,7 @@
   // 游戏说明页面
   import { View } from '@tarojs/components';
   import { SafeAreaView } from '@/components/SafeAreaView';
+  import { NavBar } from '@/components/NavBar';
   import './index.scss';
 
   const DescriptionPage = () => {
@@ -45,9 +46,10 @@
 
     return (
       <SafeAreaView>
+        <NavBar title="游戏说明" showBack />
         <View className="description-container">
           <View className="description-content">
-            <View className="description-title">游戏说明</View>
+            {/* <View className="description-title">游戏说明</View> */}
             <View className="description-text">
               {sections.map((section) => (
                 <View key={section.title} className="description-section">

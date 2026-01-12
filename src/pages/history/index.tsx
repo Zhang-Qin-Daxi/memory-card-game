@@ -2,11 +2,13 @@ import { SafeAreaView } from "@/components/SafeAreaView";
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import './index.scss';
+import { NavBar } from '@/components/NavBar';
 
 const HistoryPage: React.FC = () => {
   const scoreList = Taro.getStorageSync('score') || [];
   return (
     <SafeAreaView>
+      <NavBar title="历史记录" showBack />
       <View className="history-container">
         {scoreList ? (
           scoreList.map((item: any) => (

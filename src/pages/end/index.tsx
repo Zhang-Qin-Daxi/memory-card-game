@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { View, Button, Image } from '@tarojs/components';
 import { SafeAreaView } from '@/components/SafeAreaView';
 import './index.scss';
+import { NavBar } from '@/components/NavBar';
 
 const EndPage = () => {
   const [firstScore, setFirstScore] = useState<{time: string, score: number} | null>(null);
@@ -20,6 +21,7 @@ const EndPage = () => {
 
   return (
     <SafeAreaView>
+      <NavBar title="游戏结束" showBack />
       <View className="end-container">
         <View className="end-title">
           <View className="end-title-icon">
