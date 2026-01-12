@@ -1,0 +1,136 @@
+:root {
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --bg-color: #f8fafc;
+  --text-main: #1e293b;
+  --text-secondary: #64748b;
+  --card-bg: #ffffff;
+  --border-color: #f1f5f9;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* 游戏说明容器 */
+.description-container {
+  width: 100%;
+  // max-width: 640px;
+  // animation: slideIn 0.7s ease-out;
+}
+
+// @keyframes slideIn {
+//   from { opacity: 0; transform: translateY(20px); }
+//   to { opacity: 1; transform: translateY(0); }
+// }
+
+.description-content {
+  background-color: var(--card-bg);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+/* 标题区域 */
+.description-title {
+  background: var(--primary-gradient);
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.description-title-text {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.description-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  // font-size: 14px;
+  margin-top: 8px;
+}
+
+/* 内容正文 */
+.description-text {
+  padding: 24px;
+}
+
+.description-section {
+  margin-bottom: 32px;
+}
+
+.description-section:last-child {
+  margin-bottom: 0;
+}
+
+.description-section-title {
+  display: flex;
+  align-items: center;
+  // font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e0e7ff;
+  transition: border-color 0.3s;
+}
+
+.description-section:hover .description-section-title {
+  border-color: #818cf8;
+}
+
+.section-icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+/* 每一行规则 */
+.description-line {
+  position: relative;
+  // font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.description-line::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  background-color: #818cf8;
+  border-radius: 50%;
+}
+
+/* 底部按钮 */
+.description-footer {
+  padding: 32px;
+  background-color: #fcfcfd;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--border-color);
+}
+
+.start-btn {
+  background: var(--primary-gradient);
+  color: #ffffff;
+  border: none;
+  padding: 12px 48px;
+  border-radius: 50px;
+  // font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+  transition: all 0.3s;
+}
+
+.start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+}
+
+.start-btn:active {
+  transform: scale(0.96);
+}
