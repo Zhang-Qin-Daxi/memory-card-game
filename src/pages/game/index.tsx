@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Button, Image } from '@tarojs/components';
 import { generateCards, getCurrentLevelConfig } from '@/config/gameConfig';
 import { SafeAreaView } from '@/components/SafeAreaView';
@@ -19,8 +19,10 @@ const GamePage = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const PREVIEW_DURATION_MS = 3000; // 开局预览时长
 
-  const config = getCurrentLevelConfig(currentLevel);
-  const gridSize = `grid-cols-${config.grid}`;
+  const gridSize = useMemo(() => {
+    const cfg = getCurrentLevelConfig(currentLevel);
+    return `grid-cols-${cfg.grid}`;
+  }, [currentLevel]);
 
   const onCardClick = (index: number) => {
     if (flippedCards.length >= 2 || flippedCards.includes(index) || matchedCards.includes(index)) return;
@@ -33,7 +35,7 @@ const GamePage = () => {
       // 使用 pairId 来判断是否匹配
       if (cards[firstIndex].pairId === cards[secondIndex].pairId) {
         setMatchedCards([...matchedCards, firstIndex, secondIndex]);
-        setScore(score + 10);
+        setScore((s) => s + 10);
         setFlippedCards([]);
       } else {
         setTimeout(() => {
@@ -56,8 +58,11 @@ const GamePage = () => {
       const config = getCurrentLevelConfig(level);
       // 根据关卡配置的 pairs 数量获取图片
       const images = await GetImgsService.getImgs(config.pairs);
-      // 打乱图片顺序
-      images.sort(() => Math.random() - 0.5);
+      try {
+        await Promise.all(
+          images.map((img) => Taro.getImageInfo({ src: img.image }))
+        );
+      } catch {}
       // 使用获取的图片生成卡片
       const newCards = generateCards(images);
       setCurrentLevel(level);
@@ -91,7 +96,7 @@ const GamePage = () => {
     let timer: NodeJS.Timeout;
     if (gameStarted && timeLeft > 0 && matchedCards.length < cards.length) {
       timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 1);
+        setTimeLeft((t) => t - 1);
       }, 1000);
     } else if (timeLeft === 0 || matchedCards.length === cards.length) {
       // setGameStarted(false);
@@ -158,27 +163,31 @@ const GamePage = () => {
           </View>
         </View>
         <View className={`grid ${gridSize}`}>
-          {cards.map((card, index) => {
-            const isFlipped = flippedCards.includes(index) || matchedCards.includes(index);
-            return (
-              <View
-                key={card.id}
-                onClick={() => onCardClick(index)}
-                className={`card ${isFlipped ? 'flipped' : ''}`}
-              >
-                <View className={`card-back ${isFlipped ? 'hidden' : ''}`}>
-                  {/* <Text>?</Text> */}
+          {(() => {
+            const flippedSet = new Set(flippedCards);
+            const matchedSet = new Set(matchedCards);
+            return cards.map((card, index) => {
+              const isFlipped = flippedSet.has(index) || matchedSet.has(index);
+              return (
+                <View
+                  key={card.id}
+                  onClick={() => onCardClick(index)}
+                  className={`card ${isFlipped ? 'flipped' : ''}`}
+                >
+                  <View className={`card-back ${isFlipped ? 'hidden' : ''}`}>
+                    {/* <Text>?<\/Text> */}
+                  </View>
+                  <View className={`card-front ${isFlipped ? '' : 'hidden'}`}>
+                    <Image 
+                      src={card.imageUrl} 
+                      mode="aspectFill"
+                      className="card-image"
+                    />
+                  </View>
                 </View>
-                <View className={`card-front ${isFlipped ? '' : 'hidden'}`}>
-                  <Image 
-                    src={card.imageUrl} 
-                    mode="aspectFill"
-                    className="card-image"
-                  />
-                </View>
-              </View>
-            );
-          })}
+              );
+            });
+          })()}
         </View>
         <View className="controls">
           <Button onClick={onReturnHome} className="return-home-button">主页</Button>
