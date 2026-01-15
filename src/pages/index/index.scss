@@ -1,12 +1,15 @@
 // 垂直居中
 .home-container {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	width: 80%;
 	padding: 50px 20px;
 	background: white;
 	border-radius: 20px;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 	text-align: center;
-	margin: 0 auto;
 }
 
 .title {
@@ -36,7 +39,7 @@
 .record-button,
 .info-button {
 	width: 100%;
-	margin-bottom: 20px;
+	margin-bottom: 30px;
 }
 
 .start-button {

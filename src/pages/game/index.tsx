@@ -58,11 +58,6 @@ const GamePage = () => {
       const config = getCurrentLevelConfig(level);
       // 根据关卡配置的 pairs 数量获取图片
       const images = await GetImgsService.getImgs(config.pairs);
-      try {
-        await Promise.all(
-          images.map((img) => Taro.getImageInfo({ src: img.image }))
-        );
-      } catch {}
       // 使用获取的图片生成卡片
       const newCards = generateCards(images);
       setCurrentLevel(level);
@@ -89,32 +84,24 @@ const GamePage = () => {
   };
 
   useEffect(() => {
-    initGame(1); // 初始化第1关
-  }, []);
-
-  useEffect(() => {
     let timer: NodeJS.Timeout;
+    // 游戏进行中，且时间未到0，且未匹配完所有卡片
     if (gameStarted && timeLeft > 0 && matchedCards.length < cards.length) {
       timer = setTimeout(() => {
         setTimeLeft((t) => t - 1);
       }, 1000);
-    } else if (timeLeft === 0 || matchedCards.length === cards.length) {
-      // setGameStarted(false);
-      // setIsGameOver(true);
-      if (matchedCards.length === cards.length) {
-        if (currentLevel < 10) {
-          const nextLevel = currentLevel + 1;
-          // 进入下一关，加载新的图片
-          initGame(nextLevel);
-        } else {
-          // alert("Congratulations! You've completed all levels!");
-          Taro.showToast({
-            title: 'Congratulations! You\'ve completed all levels!',
-            icon: 'success',
-          });
-          setIsGameOver(true);
-          // Taro.navigateTo({ url: '/pages/end/index' });
-        }
+      // 游戏结束条件：时间到或所有卡片匹配
+    } else if (matchedCards.length === cards.length) {
+      if (currentLevel < 10) {
+        const nextLevel = currentLevel + 1;
+        // 进入下一关，加载新的图片
+        initGame(nextLevel);
+      } else {
+        Taro.showToast({
+          title: 'Congratulations! You\'ve completed all levels!',
+          icon: 'success',
+        });
+        setIsGameOver(true);
       }
     }
     // 游戏结束,显示游戏结束页面
@@ -127,9 +114,6 @@ const GamePage = () => {
       } catch {
         scoreList = [];
       }
-      // if (scoreList.length > 10) {
-      //   scoreList.pop(); // 如果历史记录超过10条，则删除最后一条
-      // }
       // 存储历史记录 时间 得分
       const scoreData = {
         time: new Date().toISOString().split('T')[0] + ' ' + new Date().toTimeString().split(' ')[0], // 年月日 时分秒 如 2025-11-06 10:00:00
@@ -178,8 +162,8 @@ const GamePage = () => {
                     {/* <Text>?<\/Text> */}
                   </View>
                   <View className={`card-front ${isFlipped ? '' : 'hidden'}`}>
-                    <Image 
-                      src={card.imageUrl} 
+                    <Image
+                      src={card.imageUrl}
                       mode="aspectFill"
                       className="card-image"
                     />
