@@ -1,6 +1,7 @@
 import Taro from '@tarojs/taro';
 import { View, Button, Image } from '@tarojs/components';
 import { SafeAreaView } from '@/components/SafeAreaView';
+import mainImage from '@/assets/images/main-icon.jpg';
 import './index.scss';
 
 const HomePage = () => {
@@ -10,10 +11,7 @@ const HomePage = () => {
         <View className="home-content">
           <View className="title">记忆翻牌游戏</View>
           <View className="subtitle">挑战你的记忆力</View>
-          <Image
-            src="https://ai-public.mastergo.com/ai/img_res/07192164987a20da043b91c0609b4105.jpg"
-            className="game-image"
-          />
+          <Image src={mainImage} className="game-image" />
           <View className="button-group">
             <Button onClick={() => Taro.navigateTo({ url: '/pages/game/index' })} className="start-button">开始游戏</Button>
             <Button onClick={() => Taro.navigateTo({ url: '/pages/history/index' })} className="record-button">历史记录</Button>

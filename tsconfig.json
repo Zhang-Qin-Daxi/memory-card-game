@@ -23,7 +23,8 @@
     "paths": {
       // TS5090 leading './'
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["sass"]
   },
   "include": ["./src", "./types", "./config"],
   "compileOnSave": false

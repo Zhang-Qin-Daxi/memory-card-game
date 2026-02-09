@@ -28,6 +28,11 @@ export const generateCards = (images: ImageData[]): Card[] => {
       pairId: index,
     });
   });
-  // 随机打乱卡片顺序
-  return cards.sort(() => Math.random() - 0.5);
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = cards[i];
+    cards[i] = cards[j];
+    cards[j] = tmp;
+  }
+  return cards;
 };

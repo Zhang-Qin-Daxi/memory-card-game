@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Button, Image } from '@tarojs/components';
 import { generateCards, getCurrentLevelConfig } from '@/config/gameConfig';
 import { SafeAreaView } from '@/components/SafeAreaView';
@@ -24,8 +24,10 @@ const GamePage = () => {
   // 缓存下一关的图片数据，避免在关卡切换时再次等待网络
   const [cachedNext, setCachedNext] = useState<{ level: number; images: any[] } | null>(null);
 
-  const config = getCurrentLevelConfig(currentLevel);
-  const gridSize = `grid-cols-${config.grid}`;
+  const gridSize = useMemo(() => {
+    const cfg = getCurrentLevelConfig(currentLevel);
+    return `grid-cols-${cfg.grid}`;
+  }, [currentLevel]);
 
   const onCardClick = (index: number) => {
     if (flippedCards.length >= 2 || flippedCards.includes(index) || matchedCards.includes(index)) return;
@@ -38,7 +40,7 @@ const GamePage = () => {
       // 使用 pairId 来判断是否匹配
       if (cards[firstIndex].pairId === cards[secondIndex].pairId) {
         setMatchedCards([...matchedCards, firstIndex, secondIndex]);
-        setScore(score + 10);
+        setScore((s) => s + 10);
         setFlippedCards([]);
       } else {
         setTimeout(() => {
@@ -141,14 +143,11 @@ const GamePage = () => {
   };
 
   useEffect(() => {
-    initGame(1); // 初始化第1关
-  }, []);
-
-  useEffect(() => {
     let timer: NodeJS.Timeout;
+    // 游戏进行中，且时间未到0，且未匹配完所有卡片
     if (gameStarted && timeLeft > 0 && matchedCards.length < cards.length) {
       timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 1);
+        setTimeLeft((t) => t - 1);
       }, 1000);
     } else if (timeLeft === 0 || matchedCards.length === cards.length) {
       // setGameStarted(false);
@@ -197,9 +196,6 @@ const GamePage = () => {
       } catch {
         scoreList = [];
       }
-      // if (scoreList.length > 10) {
-      //   scoreList.pop(); // 如果历史记录超过10条，则删除最后一条
-      // }
       // 存储历史记录 时间 得分
       const scoreData = {
         time: new Date().toISOString().split('T')[0] + ' ' + new Date().toTimeString().split(' ')[0], // 年月日 时分秒 如 2025-11-06 10:00:00
@@ -249,16 +245,10 @@ const GamePage = () => {
                 <View className={`card-back ${isFlipped ? 'hidden' : ''}`}>
                   {/* <Text>?</Text> */}
                 </View>
-                <View className={`card-front ${isFlipped ? '' : 'hidden'}`}>
-                  <Image 
-                    src={card.imageUrl} 
-                    mode="aspectFill"
-                    className="card-image"
-                  />
-                </View>
               </View>
-            );
-          })}
+              );
+            })
+          }
         </View>
         <View className="controls">
           <Button onClick={onReturnHome} className="return-home-button">主页</Button>
