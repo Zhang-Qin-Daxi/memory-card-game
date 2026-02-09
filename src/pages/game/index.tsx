@@ -11,13 +11,18 @@ import { NavBar } from '@/components/NavBar';
 const GamePage = () => {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(20);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [cards, setCards] = useState<Card[]>([]);
+  const [loading, setLoading] = useState(true);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedCards, setMatchedCards] = useState<number[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const PREVIEW_DURATION_MS = 3000; // 开局预览时长
+  const MAX_LEVEL = 10;
+
+  // 缓存下一关的图片数据，避免在关卡切换时再次等待网络
+  const [cachedNext, setCachedNext] = useState<{ level: number; images: any[] } | null>(null);
 
   const config = getCurrentLevelConfig(currentLevel);
   const gridSize = `grid-cols-${config.grid}`;
@@ -54,19 +59,71 @@ const GamePage = () => {
   const initGame = async (level: number) => {
     try {
       const config = getCurrentLevelConfig(level);
-      // 根据关卡配置的 pairs 数量获取图片
-      const images = await GetImgsService.getImgs(config.pairs);
+      setLoading(true);
+      // 使用缓存图片（如果已有）或根据关卡配置的 pairs 数量获取图片
+      let images = [] as any[];
+      if (cachedNext && cachedNext.level === level) {
+        images = cachedNext.images;
+        setCachedNext(null);
+      } else {
+        images = await GetImgsService.getImgs(config.pairs);
+      }
       // 打乱图片顺序
       images.sort(() => Math.random() - 0.5);
       // 使用获取的图片生成卡片
       const newCards = generateCards(images);
       setCurrentLevel(level);
       setCards(newCards);
+      // 预加载图片资源，确保图片都加载完成再开始预览/游戏
+      const preloadImages = (imgs: any[]) => {
+        return Promise.all(
+          imgs.map(
+            (img: any) =>
+              new Promise((resolve) => {
+                let resolved = false;
+                const done = () => {
+                  if (!resolved) {
+                    resolved = true;
+                    resolve(true);
+                  }
+                };
+                try {
+                  if (typeof window !== 'undefined' && typeof (window as any).Image === 'function') {
+                    const image = new (window as any).Image();
+                    image.src = img.image;
+                    image.onload = () => done();
+                    image.onerror = () => done();
+                    // 超时保护
+                    setTimeout(() => done(), 5000);
+                    return;
+                  }
+                } catch (e) {
+                  // continue to fallback
+                }
+                // 小程序或非浏览器环境回退到 Taro.getImageInfo
+                if (Taro && typeof Taro.getImageInfo === 'function') {
+                  Taro.getImageInfo({
+                    src: img.image,
+                    success: () => done(),
+                    fail: () => done(),
+                  });
+                  // 超时保护
+                  setTimeout(() => done(), 5000);
+                } else {
+                  // 最后兜底
+                  setTimeout(() => done(), 0);
+                }
+              })
+          )
+        );
+      };
+      await preloadImages(images);
+      setLoading(false);
       // 预览：先全部翻开
       setFlippedCards(newCards.map((_, index) => index));
       setMatchedCards([]);
       setScore(0);
-      setTimeLeft(20);
+      setTimeLeft(30);
       setGameStarted(false);
       setIsGameOver(false);
       // 若干秒后自动盖回并开始计时
@@ -99,7 +156,7 @@ const GamePage = () => {
       if (matchedCards.length === cards.length) {
         if (currentLevel < 10) {
           const nextLevel = currentLevel + 1;
-          // 进入下一关，加载新的图片
+          // 进入下一关，加载新的图片（若已有缓存则使用缓存）
           initGame(nextLevel);
         } else {
           // alert("Congratulations! You've completed all levels!");
@@ -111,6 +168,24 @@ const GamePage = () => {
           // Taro.navigateTo({ url: '/pages/end/index' });
         }
       }
+    }
+    // 当快完成当前关卡时，预加载下一关的图片到缓存
+    if (
+      currentLevel < MAX_LEVEL &&
+      cards.length > 0 &&
+      matchedCards.length >= cards.length - 2 &&
+      (!cachedNext || cachedNext.level !== currentLevel + 1)
+    ) {
+      const nextLevel = currentLevel + 1;
+      const nextConfig = getCurrentLevelConfig(nextLevel);
+      // 异步预取但不阻塞当前渲染
+      GetImgsService.getImgs(nextConfig.pairs)
+        .then((images) => {
+          setCachedNext({ level: nextLevel, images });
+        })
+        .catch(() => {
+          // 预加载失败时无需处理，下一关会重新请求
+        });
     }
     // 游戏结束,显示游戏结束页面
     if (isGameOver || timeLeft === 0) {
@@ -141,6 +216,11 @@ const GamePage = () => {
     <SafeAreaView>
       <NavBar title="记忆翻牌游戏" showBack />
       <View className="game-container">
+        {loading ? (
+          <View className="loading-container">
+            <Text className="loading-text">加载中...</Text>
+          </View>
+        ) : null}
         <View className="info-bar">
           <View className="info-item">
             <Text className="info-item-label">关卡</Text>
@@ -157,7 +237,7 @@ const GamePage = () => {
             </Text>
           </View>
         </View>
-        <View className={`grid ${gridSize}`}>
+        <View className={`grid ${gridSize}`} style={{ display: loading ? 'none' : undefined }}>
           {cards.map((card, index) => {
             const isFlipped = flippedCards.includes(index) || matchedCards.includes(index);
             return (
